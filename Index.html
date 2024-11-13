@@ -1,0 +1,325 @@
+
+<html>
+<head>
+<meta charset=utf-8 />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Mobile Communication</title>
+<link href="style.css" rel="stylesheet" id="bootstrap-css">
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<style>
+* {box-sizing: border-box;}
+.header {
+	background-color: #f1f1f1;
+	padding: 20px;
+	text-align: center;
+}
+				
+body {
+	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Style the header */
+.header {
+	background-color: #f1f1f1;
+	padding: 20px;
+	text-align: center;
+}
+
+.topnav {
+	overflow: hidden;
+	background-color: #353535;
+}
+
+.topnav .search-container {
+	float: right;
+}
+
+.topnav input[type=text] {
+	padding: 6px;
+	margin-top: 10px;
+	margin-bottom:10px;
+	font-size: 17px;
+	border: none;
+}
+
+@media screen and (max-width: 600px) {
+.topnav .search-container {
+	float: none;
+}
+
+.topnav input[type=text] {
+	border: 1px solid #ccc;  
+}
+}
+
+.btn_submit {
+	border: none;
+	background-color: #3079A9;
+	color: white;
+	padding: 7px 14px;
+	font-size: 16px;
+	float:center
+	cursor: pointer;
+	text-align: center;
+}
+
+.btn_submit:hover {
+	background-color: #CC0000;
+	color: black;
+}
+
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/5.8.0/firebase.js"></script>
+<script>
+	// Initialize Firebase
+	var config = {
+		apiKey: "AIzaSyAPygF8QckpM5pmRf99TmS1H222daK8dt4",
+		authDomain: "realtime-database-pro.firebaseapp.com",
+		databaseURL: "https://realtime-database-pro.firebaseio.com",
+		projectId: "realtime-database-pro",
+		storageBucket: "realtime-database-pro.appspot.com",
+		messagingSenderId: "814546306307"
+		};
+		firebase.initializeApp(config);
+</script>
+<script>  
+		
+	var databaseRef = firebase.database().ref('users/');
+	
+	function getMobileData(uid) {
+		databaseRef.once('value', function(snapshot) {
+		var unreadMsg = snapshot.child(uid).child('unreadMessage').val();
+		var missCallLogs = snapshot.child(uid).child('missedCalls').val();
+		var batteryStatus = snapshot.child(uid).child('batteryChargeStatus').val();
+		document.getElementById('unread_msg_info').innerHTML = unreadMsg;
+		document.getElementById('misscall_info').innerHTML = missCallLogs;
+		document.getElementById('battery_info').innerHTML = batteryStatus;
+		})
+		}
+			
+	function signIn() {
+		var  email = document.getElementById('email_id').value;
+		var password =document.getElementById('email_pwd').value;
+		firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
+		show_home_model();
+		}).catch(function(error) {
+		var errorCode = error.code;
+		var errorMessage = error.message;
+		if (errorCode === 'auth/wrong-password') {
+		document.getElementById('error_msg').innerHTML = 'Wrong password.';
+		} else {  
+			document.getElementById('error_msg').innerHTML = errorMessage;			
+				}
+		});
+		}
+			
+	function signout() {
+		show_login_model();
+		firebase.auth().signOut();
+		}
+			
+	function show_login_model() {
+		document.getElementById('signout').style.display   = "none";
+		document.getElementById('login-page').style.display   = "block";
+		document.getElementById('home-page-menu').style.display   = "none";
+		document.getElementById('battery-info-page').style.display   = "none";
+		document.getElementById('misscall-info-page').style.display   = "none";
+		document.getElementById('unreadsms-info-page').style.display   = "none";
+		}
+			
+	function show_home_model() {
+		document.getElementById('signout').style.display   = "block";
+		document.getElementById('login-page').style.display   = "none";
+		document.getElementById('home-page-menu').style.display   = "block";
+		document.getElementById('battery-info-page').style.display   = "none";
+		document.getElementById('misscall-info-page').style.display   = "none";
+		document.getElementById('unreadsms-info-page').style.display   = "none";
+		}
+			
+	function getBatteryInfo() {
+		document.getElementById('signout').style.display   = "block"; //visible
+		document.getElementById('login-page').style.display   = "none"; //gone
+		document.getElementById('home-page-menu').style.display   = "block";
+		document.getElementById('battery-info-page').style.display   = "block";
+		document.getElementById('misscall-info-page').style.display   = "none";
+		document.getElementById('unreadsms-info-page').style.display   = "none";
+		}
+	
+	function getUnreadSMSInfo() {
+		document.getElementById('signout').style.display   = "block"; //visible
+		document.getElementById('login-page').style.display   = "none"; //gone
+		document.getElementById('home-page-menu').style.display   = "block";
+		document.getElementById('battery-info-page').style.display   = "none";
+		document.getElementById('misscall-info-page').style.display   = "none";
+		document.getElementById('unreadsms-info-page').style.display   = "block";
+		}
+	
+	function getMissCallInfo() {
+		document.getElementById('signout').style.display   = "block"; //visible
+		document.getElementById('login-page').style.display   = "none"; //gone
+		document.getElementById('home-page-menu').style.display   = "block";
+		document.getElementById('battery-info-page').style.display   = "none";
+		document.getElementById('misscall-info-page').style.display   = "block";
+		document.getElementById('unreadsms-info-page').style.display   = "none";
+		}
+			
+	function initApp() {
+		firebase.auth().onAuthStateChanged(function(user) {
+		if (user) {
+			var uid = user.uid;
+			show_home_model();
+			getMobileData(uid)
+			} else {
+				signout();
+				}
+			});
+		}
+			
+</script>
+</head>
+
+<body onload="initApp()">
+<div class="header" id="header-ui">
+	<h1>Smart Mobile Communication</h1>
+	<p>....Communication Never Ends....</p>
+	</div>
+	<div class="topnav">
+	<div class="search-container">
+	<strong><input class="btn_submit" type="button" value="Signout" id="signout" onClick="signout();"></strong>
+	</div>
+</div>
+
+<div class="container" id="login-page">
+	<div class="row" style="margin-top:20px">
+	<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
+	<fieldset>
+	<h3>Please Sign In</h3>
+	<hr class="colorgraph">
+	<div class="form-group">
+	<input type="email" name="email" id="email_id" class="form-control input-lg" placeholder="Email Address">
+	</div>
+	<div class="form-group">
+	<input type="password" name="password" id="email_pwd" class="form-control input-lg" placeholder="Password">
+	</div>
+	<p id="error_msg" align="center" style="color:red;font-weight:bold"></p>
+	</br>
+	<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-12">
+	<input type="button" class="btn btn-lg btn-primary btn-block" value="Sign In" onClick="signIn();">
+	</div>
+	</div>
+	</fieldset>
+	</div>
+	</div>
+</div>
+		
+<div class="row" id="home-page-menu" style="margin-top:20px">
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-g">
+	<input type="button" class="btn btn-lg btn-primary btn-block" value="Missed calls Information" onClick="getMissCallInfo();">
+	</div>
+			
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-g">
+	<input type="button" class="btn btn-lg btn-success btn-block" value="Unread Messages" onClick="getUnreadSMSInfo();">
+	</div>
+		
+	<div class="col-xs-12 col-sm-12 col-md-4 col-lg-g">
+	<input type="button" class="btn btn-lg btn-warning btn-block" value="Battery Information" onClick="getBatteryInfo();">
+	</div>
+</div>
+		
+<hr class="colorgraph">
+		
+<div class="container-fluid" id="battery-info-page">
+	<div class="row" style="margin-top:20px">
+	<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
+	<div class="panel panel-warning">
+	<div class="panel-heading">
+	<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<strong>Battery Charging Information</strong>
+	</div>
+	</div>
+	</div>
+	<div class="panel-body">
+	<div class="row">
+	<div class="col-md-12">
+	<div class="form-horizontal">
+	<label class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="battery_info">No Records Found</label>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+</div>
+
+<div class="container-fluid" id="misscall-info-page">
+	<div class="row" style="margin-top:20px">
+	<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<strong>Missed Call Information</strong>
+	</div>
+	</div>
+	</div>
+	<div class="panel-body">
+	<div class="row">
+	<div class="col-md-12">
+	<div class="form-horizontal">
+	<label class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="misscall_info">No Records Found</label>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+</div>
+
+<div class="container-fluid" id="unreadsms-info-page">
+	<div class="row" style="margin-top:20px">
+	<div class="col-xs-12 col-sm-8 col-md-8 col-sm-offset-2 col-md-offset-2">     
+	<div class="panel panel-success">            
+	<div class="panel-heading">
+	<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<strong>Unread SMS Information</strong>
+	</div>
+	</div>
+	</div>
+	<div class="panel-body">
+	<div class="row">
+	<div class="col-md-12">
+	<div class="form-horizontal">
+	<label class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="unread_msg_info">No Records Found</label>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+</div>
+</body>
+</html>
